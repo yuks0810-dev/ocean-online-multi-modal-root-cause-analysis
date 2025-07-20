@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(git add:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker-compose run:*)",
+      "Bash(sudo chmod:*)",
+      "Bash(grep:*)",
+      "Bash(git init:*)"
+    ],
+    "deny": []
+  }
+}

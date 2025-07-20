@@ -1,0 +1,46 @@
+services:
+  ocean-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ocean-test
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONPATH=/app
+      - OCEAN_DATA_DIR=/app/data
+      - OCEAN_OUTPUT_DIR=/app/outputs
+      - OCEAN_LOG_LEVEL=INFO
+    command: python -m pytest tests/ -v --tb=short
+    
+  ocean-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ocean-dev
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONPATH=/app
+      - OCEAN_DATA_DIR=/app/data
+      - OCEAN_OUTPUT_DIR=/app/outputs
+      - OCEAN_LOG_LEVEL=DEBUG
+    ports:
+      - "8888:8888"  # For Jupyter if needed
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+    
+  ocean-integration-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ocean-integration-test
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONPATH=/app
+      - OCEAN_DATA_DIR=/app/data
+      - OCEAN_OUTPUT_DIR=/app/outputs
+      - OCEAN_LOG_LEVEL=INFO
+    command: python tests/integration/test_full_pipeline.py
