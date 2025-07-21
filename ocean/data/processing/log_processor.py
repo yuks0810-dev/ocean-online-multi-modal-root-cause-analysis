@@ -12,6 +12,8 @@ from collections import defaultdict, Counter
 import logging
 from datetime import datetime
 
+logger = logging.getLogger(__name__)
+
 try:
     from drain3 import TemplateMiner
     from drain3.template_miner_config import TemplateMinerConfig

@@ -225,6 +225,11 @@ class GraphNeuralNetwork(nn.Module):
                 nn.Linear(hidden_dim // 4, 1)
             )
         
+        # Output projection to ensure correct dimensionality
+        # For GAT with concat=False on final layer, output dim is hidden_dim // num_heads
+        final_dim = hidden_dim // num_heads if conv_type == 'gat' else hidden_dim
+        self.output_projection = nn.Linear(final_dim, hidden_dim)
+        
         logger.info(f"Initialized GraphNeuralNetwork with {num_layers} {conv_type.upper()} layers, "
                    f"hidden_dim={hidden_dim}, num_heads={num_heads}")
     
@@ -290,6 +295,9 @@ class GraphNeuralNetwork(nn.Module):
             elif self.pooling == 'attention':
                 # Custom attention pooling for batched graphs
                 x = self._attention_pool_batched(x, batch)
+        
+        # Apply output projection
+        x = self.output_projection(x)
         
         return x
     

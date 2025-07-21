@@ -246,6 +246,102 @@ ablation_results = evaluator.evaluate_ablation_study(ablation_configs)
 report = evaluator.generate_evaluation_report("evaluation_report.md")
 ```
 
+### 🎯 因果関係抽出の例
+
+OCEANの最も重要な機能である因果関係抽出と根本原因分析：
+
+```python
+from causal_extraction_example import CausalRelationshipExtractor
+
+# 因果関係抽出器の初期化
+service_names = ['web-frontend', 'api-gateway', 'user-service', 'database', 'cache']
+extractor = CausalRelationshipExtractor(model, service_names)
+
+# 因果関係の抽出
+causal_results = extractor.extract_causal_relationships(
+    metrics=time_series_data,      # 時系列メトリクス
+    service_graph=service_graph,   # サービス依存グラフ
+    logs=log_embeddings,           # ログ埋め込み（オプション）
+    threshold=0.5                  # 根本原因確信度閾値
+)
+
+# 結果の表示
+summary = causal_results['summary']
+print(f"最有力根本原因: {summary['top_root_cause']['service']}")
+print(f"確信度: {summary['top_root_cause']['probability']:.3f}")
+
+# 可視化
+extractor.visualize_causal_relationships(causal_results, "causal_analysis.png")
+```
+
+#### 🚀 因果関係抽出デモの実行
+
+実際の因果関係抽出を体験できるデモンストレーション：
+
+```bash
+# 基本的な因果関係抽出デモ
+python causal_extraction_example.py
+
+# Docker環境での実行
+docker-compose run --rm ocean-dev python causal_extraction_example.py
+```
+
+**期待される出力例：**
+```
+🔍 OCEAN因果関係抽出のデモンストレーション
+==================================================
+📊 サンプルシナリオを作成中...
+🤖 OCEANモデルを初期化中...
+🔬 因果関係抽出器を初期化中...
+🎯 因果関係を抽出中...
+
+📋 分析結果:
+------------------------------
+最有力根本原因: database
+確信度: 0.847
+
+根本原因候補数: 3
+
+上位根本原因候補:
+  1. database: 0.847 (high)
+  2. user-service: 0.623 (medium)  
+  3. api-gateway: 0.456 (medium)
+
+🌐 サービス影響度分析:
+  database:
+    外向き影響: 2.341
+    内向き影響: 0.123
+    影響比率: 19.024
+
+⏰ 時系列因果関係分析:
+  変化点:
+    database (時刻10): 2.156
+    user-service (時刻12): 1.534
+    api-gateway (時刻14): 0.923
+
+📈 因果関係を可視化中...
+✅ 可視化結果を 'causal_analysis_results.png' に保存しました
+🎉 因果関係抽出デモンストレーション完了!
+```
+
+#### 📊 因果関係分析の詳細ガイド
+
+より詳細な因果関係分析手法については：
+
+```bash
+# 詳細ガイドの閲覧
+cat docs/causal_analysis_guide.md
+
+# または
+open docs/causal_analysis_guide.md
+```
+
+詳細ガイドの内容：
+- **理論的背景**: Multi-factor Attention、対比学習による因果推定
+- **実践的手法**: 時系列ラグ分析、グラフベース因果推定
+- **実用例**: データベース過負荷、ネットワーク分断シナリオ
+- **結果活用**: アラート優先度付け、自動修復アクション提案
+
 ## 🔧 設定
 
 ### 設定ファイルの構造
@@ -284,6 +380,11 @@ config.training.num_epochs = 100       # エポック数
 make docker-test
 docker-compose run --rm ocean-dev python simple_test.py
 
+# 因果関係抽出デモ（推奨）
+python causal_extraction_example.py
+# または Docker環境で
+docker-compose run --rm ocean-dev python causal_extraction_example.py
+
 # ユニットテスト
 make test-unit
 docker-compose run --rm ocean-test pytest tests/unit/ -v
@@ -305,6 +406,9 @@ make test-coverage
 
 # テスト結果の詳細
 cat TEST_REPORT.md
+
+# 因果関係分析の詳細ガイド
+cat docs/causal_analysis_guide.md
 ```
 
 ## 📊 評価指標
@@ -473,6 +577,16 @@ print(f"Output shape: {output_tensor.shape}")
 
 **📈 次のステップ:**
 1. `simple_test.py`を実行して動作確認
-2. 基本的な使用例を試す
-3. 自分のデータでの実験
-4. カスタマイズと拡張
+2. **`causal_extraction_example.py`で因果関係抽出を体験（推奨）**
+3. `docs/causal_analysis_guide.md`で詳細な分析手法を学習
+4. 基本的な使用例を試す
+5. 自分のデータでの実験
+6. カスタマイズと拡張
+
+**🎯 OCEANの核心機能を体験:**
+```bash
+# 最も重要な機能である因果関係抽出のデモ
+python causal_extraction_example.py
+```
+
+このデモでは、データベース異常が他のサービスに波及するシナリオで、OCEANがどのように根本原因を特定し、因果関係を抽出するかを実際に確認できます。

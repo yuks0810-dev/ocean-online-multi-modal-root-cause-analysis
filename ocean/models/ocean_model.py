@@ -81,7 +81,8 @@ class OCEANModel(nn.Module):
             num_heads=self.config.model.gnn_num_heads,
             dropout=self.config.model.gnn_dropout,
             conv_type='gat',  # Use Graph Attention Networks
-            pooling='attention'
+            pooling='mean',  # Use simple mean pooling instead of attention
+            batch_norm=False  # Disable batch normalization for demo
         )
     
     def _init_attention_component(self):
@@ -173,16 +174,28 @@ class OCEANModel(nn.Module):
             batched_node_features, batched_edge_index, batch_vector
         )  # (batch_size, spatial_dim)
         
+        # 3. Log feature aggregation if needed
+        if logs is not None:
+            if logs.dim() == 3:
+                # Aggregate time series log features to batch level
+                log_features = torch.mean(logs, dim=1)  # (batch_size, log_dim)
+            else:
+                log_features = logs
+        else:
+            # Create dummy log features if None
+            log_features = torch.zeros(batch_size, self.log_input_dim, device=metrics.device)
+        
         # 3. Multi-factor Attention
         attended_features = self.attention_module(
-            temporal_features, spatial_features, logs
+            temporal_features, spatial_features, log_features
         )  # (batch_size, attention_dim)
         
         # 4. Graph Fusion with Contrastive Learning
+        # Use attended features instead of raw features
         fusion_results = self.fusion_module(
-            attended_features,  # Use attended features as temporal input
-            spatial_features,   # Original spatial features
-            logs,               # Original log features
+            attended_features,  # Already fused temporal+spatial+log features
+            spatial_features,   # Spatial features
+            attended_features,  # Use attended features as log input too
             compute_contrastive_loss=self.training
         )
         
